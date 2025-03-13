@@ -1,6 +1,7 @@
 import math
 
 from torch import nn
+import torch
 
 class ScaleDotProductAttention(nn.Module):
     def __init__f(self):
@@ -26,9 +27,13 @@ class ScaleDotProductAttention(nn.Module):
 
         # Query * Key^T
         k_t = k.transpose(-2, -1)
-        scores = (q @ k_t) / math.sqrt(d_k)
+        # scores with shape (batch_size, num_heads, seq_len_q, seq_len_k)
+        scores :torch.Tensor = (q @ k_t) / math.sqrt(d_k)
 
         # Apply mask
+        # src_mask: (batch_size, 1, 1, seq_len_k)
+        # padding = 0 时 value = -10000
+        # trg_mask: 
         if mask is not None:
             scores = scores.masked_fill(mask == 0, -10000)
         
