@@ -22,7 +22,10 @@ train_iter, valid_iter, test_iter = data_loader.make_iter(train_data, valid_data
 # in the vocabulary, '<pad>' is used for padding, '<sos>' for start of sentence
 # stoi: string to index
 # itos: index to string
-scr_pad_idx = data_loader.source.vocab.stoi['<pad>']
+# src_pad_idx: integer value of '<pad>'
+# trg_pad_idx: integer value of '<pad>'
+# trg_sos_idx: integer value of '<sos>'
+src_pad_idx = data_loader.source.vocab.stoi['<pad>']
 trg_pad_idx = data_loader.target.vocab.stoi['<pad>']
 trg_sos_idx = data_loader.target.vocab.stoi['<sos>']
 
