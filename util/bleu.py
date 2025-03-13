@@ -29,6 +29,13 @@ def bleu_stats(hypothesis, reference):
     return stats
 
 def bleu(stats):
+    """
+    compute BLEU score from BLEU stats
+    Args:
+        stats: list
+    Returns:
+        bleu: float    
+    """
     if (len(list(filter(lambda x: x == 0, stats))) > 0):
         return 0
     (c, r) = stats[:2]
@@ -42,6 +49,14 @@ def bleu(stats):
     return math.exp(bp + log_bleu_prec)
 
 def get_bleu(hypotheses, reference):
+    """
+    get BLEU score for a list of hypotheses and references
+    Args:
+        hypotheses: list of list of tokens
+        reference: list of list of tokens
+    Returns:
+        bleu: float
+    """
     stats = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     for hyp, ref in zip(hypotheses, reference):
         stats += np.array(bleu_stats(hyp, ref))
