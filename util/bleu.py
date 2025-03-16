@@ -62,3 +62,21 @@ def get_bleu(hypotheses, reference):
         stats += np.array(bleu_stats(hyp, ref))
     return 100 * bleu(stats)
     
+
+def idx_to_word(x, vocab):
+    """
+    convert index to word
+    Args:
+        x: list of indices
+        vocab: torchtext.vocab.Vocab
+    Returns:
+        words: str
+    """
+    words = []
+    for i in x:
+        word = vocab.itos[i]
+        if '<' in word:
+            continue
+        words.append(word)
+    words = ' '.join(words)
+    return words
