@@ -38,7 +38,7 @@ class DecoderLayer(nn.Module):
         """
         # Self-Attention
         _x = dec
-        x, _ = self.self_attention.forward(dec, dec, dec, trg_mask)
+        x = self.self_attention.forward(dec, dec, dec, trg_mask)
 
         # Add & Norm
         x = self.dropout1(x)
@@ -47,7 +47,7 @@ class DecoderLayer(nn.Module):
         # Encoder-Decoder Attention
         if enc is not None:
             _x = x
-            x, _ = self.enc_dec_attention(q=x, k=enc, v=enc, mask=src_mask)
+            x = self.enc_dec_attention(q=x, k=enc, v=enc, mask=src_mask)
 
             # Add & Norm
             x = self.dropout2(x)

@@ -32,7 +32,7 @@ class EncoderLayer(nn.Module):
         """
         # Multi-Head Attention
         _x = x
-        x, _ = self.attention.forward(x, x, x, src_mask)
+        x = self.attention.forward(x, x, x, src_mask)
 
         # Add & Norm
         x = self.dropout1(x)
