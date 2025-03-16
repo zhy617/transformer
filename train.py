@@ -7,7 +7,7 @@ from util.bleu import *
 import time
 from util.epoch_timer import epoch_time
 
-def count_parameters(model):
+def count_parameters(model: nn.Module):
     """
     Count the number of parameters with grad in the model
     Args:
@@ -16,7 +16,7 @@ def count_parameters(model):
         int: number of parameters with grad in the model
     """
     # p.numel: return the number of elements in the tensor
-    return sum(p.numel for p in model.parameters() if p.requires_grad)
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 def initialize_weights(m):
     """
