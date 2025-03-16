@@ -4,6 +4,8 @@ from torch.optim import Adam
 import torch.optim as optim
 from models.model.transformer import Transformer
 from util.bleu import *
+import time
+from util.epoch_timer import epoch_time
 
 def count_parameters(model):
     """
@@ -58,6 +60,17 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,
 criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
 
 def train(model, iterator, optimizer, criterion, clip):
+    """
+    train the model
+    Args:
+        model: model to train
+        iterator: iterator for the dataset
+        optimizer: optimizer for the model
+        criterion: loss function
+        clip: gradient clipping value
+    Returns:
+        float: average loss
+    """
     model.train()
     epoch_loss = 0
     for i, batch in enumerate(iterator):
@@ -128,4 +141,48 @@ def evaluate(model, iterator, criterion):
 
     return epoch_loss / len(iterator), np.mean(batch_bleu)
 
+def run(total_epoch, best_loss):
+    train_losses, valid_losses, valid_bleus = [], [], []
+    for epoch in range(total_epoch):
+        start_time = time.time()
+        train_loss = train(model, train_iter, optimizer, criterion, clip)
+        valid_loss, bleu = evaluate(model, valid_iter, criterion)
+        end_time = time.time()
 
+        # after warmup, adjust the learning rate
+        # based on the validation loss
+        # if the validation loss does not decrease for 'patience' epochs,
+        # reduce the learning rate by 'factor'
+        if epoch > warmup:
+            scheduler.step(valid_loss)
+
+        train_losses.append(train_loss)
+        valid_losses.append(valid_loss)
+        valid_bleus.append(bleu)
+
+        epoch_mins, epoch_secs = epoch_time(start_time, end_time)
+
+        if valid_loss < best_loss:
+            best_loss = valid_loss
+            torch.save(model.state_dict(), 'saved/model{0}.pt'.format(valid_loss))
+        
+        f = open('result/train_loss.txt', 'w')
+        f.write(str(train_losses))
+        f.close()
+
+        f = open('result/valid_loss.txt', 'w')
+        f.write(str(valid_losses))
+        f.close()
+
+        f = open('result/valid_bleu.txt', 'w')
+        f.write(str(valid_bleus))
+        f.close()
+
+        print(f'Epoch: {epoch+1:02} | Time: {epoch_mins}m {epoch_secs}s')
+        print(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {np.exp(train_loss):7.3f}')
+        print(f'\t Val. Loss: {valid_loss:.3f} |  Val. PPL: {np.exp(valid_loss):7.3f}')
+        print(f'\t Val. BLEU: {bleu:.3f}')
+
+
+if __name__ == '__main__':
+    run(total_epoch = epoch, best_loss = inf)
