@@ -48,8 +48,44 @@ optimizer = Adam(model.parameters(),
                  weight_decay=weight_decay,
                  eps=adam_eps)
 
+# Learning rate scheduler
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,
                                                  verbose=True,
                                                  factor=factor,
                                                  patience=patience)
+
+criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
+
+def train(model, iterator, optimizer, criterion, clip):
+    model.train()
+    epoch_loss = 0
+    for i, batch in enumerate(iterator):
+        src = batch.src
+        trg = batch.trg
+
+        optimizer.zero_grad()
+        
+        # remove the last token of the target 'EOS'
+        # output: [batch_size, trg_len - 1, trg_vocab_size]
+        output = model(src, trg[:, :-1])
+
+        # output_reshape: [batch_size * (trg_len - 1), trg_vocab_size]
+        output_reshape = output.contiguous().view(-1, output.shape[-1])
+
+        # trg shape: [batch_size, trg_len]
+        # trg_reshape: [batch_size * (trg_len - 1)]
+        # remove the first token of the target 'SOS'
+        trg_reshape = trg[:, 1:].contiguous().view(-1)
+
+        loss = criterion(output_reshape, trg_reshape)
+        loss.backward()
+
+        # clip the gradient
+        torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
+        
+        optimizer.step()
+        epoch_loss += loss.item()
+        print(f'Batch: {i+1:02} | Loss: {loss.item():.3f}')
+    return epoch_loss / len(iterator)
+
 
