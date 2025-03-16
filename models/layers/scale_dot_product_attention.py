@@ -2,14 +2,15 @@ import math
 
 from torch import nn
 import torch
+from torch import Tensor
 
 class ScaleDotProductAttention(nn.Module):
-    def __init__f(self):
+    def __init__(self):
         super().__init__()
 
         self.softmax = nn.Softmax(dim=-1)
     
-    def forward(self, q, k, v, mask=None, e=1e-12):
+    def forward(self, q:Tensor, k:Tensor, v:Tensor, mask=None, e=1e-12):
         """
         Args:
             q: Query tensor with shape (batch_size, num_heads, seq_len_q, d_k)
