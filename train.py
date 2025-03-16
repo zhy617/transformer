@@ -6,6 +6,7 @@ from models.model.transformer import Transformer
 from util.bleu import *
 import time
 from util.epoch_timer import epoch_time
+from torch import Tensor
 
 def count_parameters(model: nn.Module):
     """
@@ -59,7 +60,11 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,
 
 criterion = nn.CrossEntropyLoss(ignore_index=trg_pad_idx)
 
-def train(model, iterator, optimizer, criterion, clip):
+def train(model:nn.Module,
+          iterator:DataLoader,
+          optimizer:Adam,
+          criterion:nn.CrossEntropyLoss,
+          clip:float):
     """
     train the model
     Args:
@@ -74,14 +79,14 @@ def train(model, iterator, optimizer, criterion, clip):
     model.train()
     epoch_loss = 0
     for i, batch in enumerate(iterator):
-        src = batch.src
-        trg = batch.trg
+        src:Tensor = batch.src
+        trg:Tensor = batch.trg
 
         optimizer.zero_grad()
         
         # remove the last token of the target 'EOS'
         # output: [batch_size, trg_len - 1, trg_vocab_size]
-        output = model(src, trg[:, :-1])
+        output:Tensor = model(src, trg[:, :-1])
 
         # output_reshape: [batch_size * (trg_len - 1), trg_vocab_size]
         output_reshape = output.contiguous().view(-1, output.shape[-1])
@@ -102,7 +107,7 @@ def train(model, iterator, optimizer, criterion, clip):
         print(f'Batch: {i+1:02} | Loss: {loss.item():.3f}')
     return epoch_loss / len(iterator)
 
-def evaluate(model, iterator, criterion):
+def evaluate(model:nn.Module, iterator, criterion):
     """
     evaluate the model
     Args:
