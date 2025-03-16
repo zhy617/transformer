@@ -1,5 +1,5 @@
 from torch import nn
-
+from torch import Tensor
 from models.layers.scale_dot_product_attention import ScaleDotProductAttention
 
 class MultiHeadAttention(nn.Module):
@@ -20,7 +20,7 @@ class MultiHeadAttention(nn.Module):
         self.w_v = nn.Linear(d_model, d_model)
         self.w_o = nn.Linear(d_model, d_model)
 
-    def forward(self, q, k, v, mask=None):
+    def forward(self, q:Tensor, k:Tensor, v:Tensor, mask=None):
         """
         Forward pass of Multi-Head Attention
         Args:
@@ -53,7 +53,7 @@ class MultiHeadAttention(nn.Module):
 
         # Concat
 
-    def split(self, tensor):
+    def split(self, tensor:Tensor):
         """
         split the tensor to multiple heads
         Args:
@@ -68,7 +68,7 @@ class MultiHeadAttention(nn.Module):
 
         return tensor
     
-    def concat(self, tensor):
+    def concat(self, tensor:Tensor):
         """
         Concatenate the tensor
         Args:
