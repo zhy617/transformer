@@ -3,6 +3,7 @@ from torch import nn
 from torch.optim import Adam
 import torch.optim as optim
 from models.model.transformer import Transformer
+from util.bleu import *
 
 def count_parameters(model):
     """
@@ -87,5 +88,44 @@ def train(model, iterator, optimizer, criterion, clip):
         epoch_loss += loss.item()
         print(f'Batch: {i+1:02} | Loss: {loss.item():.3f}')
     return epoch_loss / len(iterator)
+
+def evaluate(model, iterator, criterion):
+    """
+    evaluate the model
+    Args:
+        model: model to evaluate
+        iterator: iterator for the dataset
+        criterion: loss function
+    Returns:
+        (float, float): average loss, average BLEU score
+    """
+    model.eval()
+    epoch_loss = 0
+    batch_bleu = []
+    with torch.no_grad():
+        for i, batch in enumerate(iterator):
+            src = batch.src
+            trg = batch.trg
+            output:torch.Tensor = model(src, trg[:, :-1])
+            output_reshape = output.contiguous().view(-1, output.shape[-1])
+            trg_reshape = trg[:, 1:].contiguous().view(-1)
+
+            loss = criterion(output_reshape, trg_reshape)
+            epoch_loss += loss.item()
+
+            # calculate the BLEU score
+            total_bleu = []
+            for j in range(batch_size):
+                try:
+                    trg_words = idx_to_word(batch.trg[j], data_loader.target.vocab)
+                    output_words = idx_to_word(output[j].argmax(dim=1), data_loader.target.vocab)
+                    bleu = get_bleu(output_words.split(), trg_words.split())
+                    total_bleu.append(bleu)
+                except:
+                    pass
+            total_bleu = np.mean(total_bleu)
+            batch_bleu.append(total_bleu)
+
+    return epoch_loss / len(iterator), np.mean(batch_bleu)
 
 
