@@ -29,8 +29,7 @@ class MultiHeadAttention(nn.Module):
             v: Value tensor with shape (batch_size, seq_len_v, d_model)
             mask: Mask tensor with shape (batch_size, seq_len_q, seq_len_k)
         Returns:
-            (output, attention): Output tensor with shape (batch_size, seq_len_q, d_model), 
-            Attention tensor with shape (batch_size, num_heads, seq_len_q, seq_len_k)
+            output: Output tensor with shape (batch_size, seq_len_q, d_model)
         """
         batch_size = q.size(0)
         
@@ -52,6 +51,10 @@ class MultiHeadAttention(nn.Module):
         output, attention = self.attention.forward(q, k, v, mask)
 
         # Concat
+        output = self.concat(output)
+        output = self.w_o(output)
+
+        return output
 
     def split(self, tensor:Tensor):
         """
