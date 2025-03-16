@@ -142,6 +142,12 @@ def evaluate(model, iterator, criterion):
     return epoch_loss / len(iterator), np.mean(batch_bleu)
 
 def run(total_epoch, best_loss):
+    """
+    run the model
+    Args:
+        total_epoch: total number of epochs
+        best_loss: best loss
+    """
     train_losses, valid_losses, valid_bleus = [], [], []
     for epoch in range(total_epoch):
         start_time = time.time()
