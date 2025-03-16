@@ -29,9 +29,8 @@ class MultiHeadAttention(nn.Module):
             v: Value tensor with shape (batch_size, seq_len_v, d_model)
             mask: Mask tensor with shape (batch_size, seq_len_q, seq_len_k)
         Returns:
-            output: Output tensor with shape (batch_size, seq_len_q, d_model)
-            
-            attention: Attention tensor with shape (batch_size, num_heads, seq_len_q, seq_len_k)
+            (output, attention): Output tensor with shape (batch_size, seq_len_q, d_model), 
+            Attention tensor with shape (batch_size, num_heads, seq_len_q, seq_len_k)
         """
         batch_size = q.size(0)
         
