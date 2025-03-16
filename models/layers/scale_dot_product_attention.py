@@ -10,7 +10,7 @@ class ScaleDotProductAttention(nn.Module):
 
         self.softmax = nn.Softmax(dim=-1)
     
-    def forward(self, q:Tensor, k:Tensor, v:Tensor, mask=None, e=1e-12):
+    def forward(self, q:Tensor, k:Tensor, v:Tensor, mask:Tensor=None, e=1e-12):
         """
         Args:
             q: Query tensor with shape (batch_size, num_heads, seq_len_q, d_k)
@@ -35,6 +35,8 @@ class ScaleDotProductAttention(nn.Module):
         # src_mask: (batch_size, 1, 1, seq_len_k)
         # padding = 0 时 value = -10000
         # trg_mask: 
+        print(scores.shape)
+        print(mask.shape)
         if mask is not None:
             scores = scores.masked_fill(mask == 0, -10000)
         

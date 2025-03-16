@@ -1,4 +1,5 @@
 from torch import nn
+from torch import Tensor
 import torch
 
 from models.model.encoder import Encoder
@@ -51,28 +52,28 @@ class Transformer(nn.Module):
         src_mask = self.make_src_mask(src)
         trg_mask = self.make_trg_mask(trg)
         enc_src = self.encoder(src, src_mask)
-        output = self.decoder(trg, enc_src, src_mask, trg_mask)
+        output = self.decoder(trg, enc_src, trg_mask, src_mask)
         return output
 
-    def make_src_mask(self, src):
+    def make_src_mask(self, src:Tensor):
         """
         make mask for source sequence
         Args:
-            src: source sequence with shape (batch_size, seq_len)
+            src: source sequence with shape (batch_size, src_seq_len)
         Returns:
-            mask: mask tensor with shape (batch_size, 1, 1, seq_len)
+            mask: mask tensor with shape (batch_size, 1, 1, src_seq_len)
         """
         return (src != self.src_pad_idx).unsqueeze(1).unsqueeze(2)
 
-    def make_trg_mask(self, trg):
+    def make_trg_mask(self, trg:Tensor):
         """
         make mask for target sequence
         Args:
-            trg: target sequence with shape (batch_size, seq_len)
+            trg: target sequence with shape (batch_size, trg_seq_len)
         Returns:
-            mask: mask tensor with shape (batch_size, 1, seq_len, seq_len)
+            mask: mask tensor with shape (batch_size, 1, trg_seq_len, 1)
         """
-        trg_pad_mask = (trg != self.trg_pad_idx).unsqueeze(1).unsqueeze(2)
+        trg_pad_mask = (trg != self.trg_pad_idx).unsqueeze(1).unsqueeze(3)
         trg_len = trg.shape[1]
         trg_sub_mask = torch.tril(torch.ones((trg_len, trg_len), device=self.device)).bool()
         trg_mask = trg_pad_mask & trg_sub_mask

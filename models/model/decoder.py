@@ -31,11 +31,11 @@ class Decoder(nn.Module):
         
         self.linear = nn.Linear(d_model, dec_voc_size)
 
-    def forward(self, x, enc_src, src_mask, trg_mask):
+    def forward(self, x, enc_src, trg_mask, src_mask):
         x = self.embedding(x)
 
         for layer in self.layers:
-            x = layer.forward(x, enc_src, src_mask, trg_mask)
+            x = layer.forward(x, enc_src, trg_mask, src_mask)
         
         x = self.linear(x)
         # Todo: Add softmax
