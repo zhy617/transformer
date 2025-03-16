@@ -20,7 +20,7 @@ class Decoder(nn.Module):
         super().__init__()
         self.embedding = TransformerEmbedding(vocab_size=dec_voc_size,
                                               embed_size=d_model,
-                                              max_seq_len=max_seq_len,
+                                              max_len=max_seq_len,
                                               drop_prob=drop_prob,
                                               device=device)
         self.layers = nn.ModuleList([DecoderLayer(d_model=d_model,
